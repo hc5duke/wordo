@@ -1,7 +1,8 @@
 %table{ :border => 1, :cellspacing => 0, :cellpadding => 0 }
-  - @images.each_with_index do |img, index|
+  - @images.each_with_index do |row, index|
     %tr
       %td
         = index
-      %td
-        %img{ :src => "data:image/gif;base64,#{img}" }
+      - row.each_with_index do |img, index|
+        %td
+          %img{ :src => "data:image/gif;base64,#{img}" }
