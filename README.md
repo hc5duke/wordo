@@ -1,0 +1,4 @@
+wordo
+=====
+
+wordo counts letters
