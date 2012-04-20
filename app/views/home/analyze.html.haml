@@ -1,0 +1,7 @@
+%table{ :border => 1, :cellspacing => 0, :cellpadding => 0 }
+  - @images.each_with_index do |img, index|
+    %tr
+      %td
+        = index
+      %td
+        %img{ :src => "data:image/gif;base64,#{img}" }
