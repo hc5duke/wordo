@@ -3,10 +3,6 @@ class HomeController < ApplicationController
   end
 
   def analyze
-    params[:picture]
-    image = Magick::Image.from_blob(params[:picture].read).first
-    image = image.quantize(16, Magick::GRAYColorspace)
-    @images = []
     screen_width = 640
     screen_height = 960
     offset_top = 130
@@ -17,15 +13,35 @@ class HomeController < ApplicationController
     tile_size = (screen_width / num_tiles).to_i
     tile_width = tile_size - tile_offset_left - tile_offset_right
     tile_height = tile_size - 2 * tile_offset_y
+    colorspace = 3
+
+    image = Magick::Image.from_blob(params[:picture].read).first.
+      resize(screen_width, screen_height)
+    bw_image = image.
+      edge.
+      despeckle.
+      quantize(8, Magick::GRAYColorspace)
+    @images = []
+    @colors = []
     num_tiles.times.each do |col|
-      top = offset_top + col * screen_width / num_tiles
-      arr = num_tiles.times.map do |row|
-        left = row * screen_width / num_tiles
-        img = image.resize(screen_width, screen_height).
-          crop(left.to_i + tile_offset_left, top.to_i + tile_offset_y, tile_width, tile_height)
+      top = offset_top + col * screen_width / num_tiles + tile_offset_y
+      cols = []
+      @images << num_tiles.times.map do |row|
+        left = row * screen_width / num_tiles + tile_offset_left
+        img = image.crop(left.to_i, top.to_i, tile_width, tile_height).quantize(2, Magick::HSLColorspace)
+        bw_img = bw_image.crop(left.to_i, top.to_i, tile_width, tile_height)
+        if bw_img.color_histogram.reject { |key, val| val < 100 }.length < 2
+          cols << nil
+        else
+          if img.color_histogram.select { |key, val| key.red > 40000 && key.blue < 40000 && key.green < 4000 }.length > 0
+            cols << 'red'
+          else
+            cols << img.color_histogram.reject { |key, val| val < 100 }
+          end
+        end
         Base64.encode64(img.to_blob)
       end
-      @images << arr
+      @colors << cols
     end
   end
 end

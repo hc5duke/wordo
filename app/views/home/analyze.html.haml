@@ -1,8 +1,11 @@
 %table{ :border => 1, :cellspacing => 0, :cellpadding => 0 }
-  - @images.each_with_index do |row, index|
+  - @images.each_with_index do |row, i|
     %tr
-      %td
-        = index
-      - row.each_with_index do |img, index|
+      %td= i
+      - row.each_with_index do |img, j|
         %td
-          %img{ :src => "data:image/gif;base64,#{img}" }
+          - if @colors[i][j].nil?
+            \-
+          - else
+            %img{ :src => "data:image/gif;base64,#{img}" }
+            = @colors[i][j]
