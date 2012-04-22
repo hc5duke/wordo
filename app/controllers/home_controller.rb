@@ -3,6 +3,7 @@ class HomeController < ApplicationController
   end
 
   def analyze
+    tw_tile = Magick::Image::read('./data/tw.gif').first
     screen_width = 640
     screen_height = 960
     offset_top = 130
@@ -18,7 +19,7 @@ class HomeController < ApplicationController
     image = Magick::Image.from_blob(params[:picture].read).first.
       resize(screen_width, screen_height)
     bw_image = image.
-      edge.
+      charcoal.
       despeckle.
       quantize(8, Magick::GRAYColorspace)
     @images = []
@@ -33,10 +34,19 @@ class HomeController < ApplicationController
         if bw_img.color_histogram.reject { |key, val| val < 100 }.length < 2
           cols << nil
         else
-          if img.color_histogram.select { |key, val| key.red > 40000 && key.blue < 40000 && key.green < 4000 }.length > 0
+          if img.color_histogram.select { |key, val| key.red > 40000 && key.blue < 40000 && key.green < 40000 }.length > 0
             cols << 'red'
+          elsif img.color_histogram.select { |key, val| key.red < 40000 && key.blue > 40000 && key.green < 40000 }.length > 0
+            cols << 'blue'
+          elsif img.color_histogram.select { |key, val| key.red < 40000 && key.blue < 40000 && key.green > 40000 }.length > 0
+            cols << 'green'
           else
-            cols << img.color_histogram.reject { |key, val| val < 100 }
+            diff = img.difference(tw_tile)
+            if diff[0] < 10000 && diff[1] < 0.05
+              cols << 'tw'
+            else
+              cols << img.color_histogram.reject { |key, val| val < 100 }
+            end
           end
         end
         Base64.encode64(img.to_blob)

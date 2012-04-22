@@ -6,6 +6,8 @@
         %td
           - if @colors[i][j].nil?
             \-
+          - elsif String === @colors[i][j]
+            = @colors[i][j][0]
           - else
             %img{ :src => "data:image/gif;base64,#{img}" }
-            = @colors[i][j]
+            =# @colors[i][j]
