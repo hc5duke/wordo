@@ -9,7 +9,7 @@
       - row.each_with_index do |img, j|
         %td
           - if @colors[i][j].nil? || String === @colors[i][j]
-            &nbsp;
+            &times;
           - else
             %img{ :src => "data:image/gif;base64,#{img}" }
 

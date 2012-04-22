@@ -17,7 +17,9 @@ class HomeController < ApplicationController
     colorspace = 3
 
     image = Magick::Image.from_blob(params[:picture].read).first.
-      resize(screen_width, screen_height)
+      resize(screen_width, screen_height).
+      #quantize(4, Magick::GRAYColorspace).
+      charcoal
     @images = []
     @colors = []
     num_tiles.times.each do |col|
@@ -25,17 +27,9 @@ class HomeController < ApplicationController
       cols = []
       @images << num_tiles.times.map do |row|
         left = row * screen_width / num_tiles + tile_offset_left
-        tile = image.crop(left.to_i, top.to_i, tile_width, tile_height)
-        img = tile.quantize(2, Magick::HSLColorspace)
-        color_histogram = img.color_histogram
-        palette = color_histogram.reject { |key, val| val < 100 }
-        if palette.length == 1
-          cols << 'empty'
-        else
-          cols << palette
-          img = img.negate if color_histogram.select { |key, val| key.red > 50000 && key.blue > 50000 && key.green > 50000 }.length > 0
-          Base64.encode64(img.charcoal.quantize(2, Magick::GRAYColorspace).to_blob)
-        end
+        img = image.crop(left.to_i, top.to_i, tile_width, tile_height)
+        cols << []
+        Base64.encode64(img.to_blob)
       end
       @colors << cols
     end
