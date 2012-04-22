@@ -1,4 +1,8 @@
 %table{ :border => 1, :cellspacing => 0, :cellpadding => 0 }
+  %tr
+    %td -
+    - 15.times do |i|
+      %td= i
   - @images.each_with_index do |row, i|
     %tr
       %td= i
@@ -8,4 +12,7 @@
             &nbsp;
           - else
             %img{ :src => "data:image/gif;base64,#{img}" }
-            =# @colors[i][j]
+
+- content_for :styles do
+  :plain
+    td { font-size: 10px; line-height: 10px;}
