@@ -4,10 +4,8 @@
       %td= i
       - row.each_with_index do |img, j|
         %td
-          - if @colors[i][j].nil?
-            \-
-          - elsif String === @colors[i][j]
-            = @colors[i][j][0]
+          - if @colors[i][j].nil? || String === @colors[i][j]
+            &nbsp;
           - else
             %img{ :src => "data:image/gif;base64,#{img}" }
             =# @colors[i][j]
