@@ -1,10 +1,12 @@
 require 'rmagick'
 
 color = Magick::Pixel.new(9000, 9000, 9000, 65535)
-#Dir['*.png'].each do |name|
-['1000.png', '133.png', '371.png'].each do |name|
-  white = Magick::Image.read("./#{name}").first
-  black = white
+color = Magick::Pixel.new(0, 0, 0, 65535)
+Dir['*.png'].each do |name|
+  next if /black/ === name
+  black = Magick::Image.read("./#{name}").first
+  black.crop(0, 14, 24, 10).color_histogram
+  [1,2,3].zip([2,3,4]).map{|a,b|a*b}
   min = black.export_pixels(0, 0, 24, 14, 'I').min
   if min > 20_000
     24.times.each do |col|
@@ -18,5 +20,5 @@ color = Magick::Pixel.new(9000, 9000, 9000, 65535)
       end
     end
   end
-  black.quantize(8, Magick::GRAYColorspace).write("./black_#{name}")
+  black.quantize(4, Magick::GRAYColorspace).write("./black_#{name}")
 end
